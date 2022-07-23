@@ -33,6 +33,7 @@ url = "https://api.meraki.com/api/v1/organizations"
 headers = {"X-Cisco-Meraki-API-Key": "6bec40cf957de430a6f1f2baa056b99a4fac9ea0"}
 
 org_list_json = requests.get(url, headers=headers)
+org_list_json.raise_for_status()
 org_list = org_list_json.json()
 print("\nLista de organizaciones:\n")
 pprint.pprint(org_list)
@@ -40,7 +41,7 @@ pprint.pprint(org_list)
 
 Con el keyword *import* se importan librerías instaladas para que se puedan utilizar sus funciones y métodos (como .get() y .json() de la librería *requests*, .pprint() de la librería *pprint* y .DictWriter(), .writeheader() y .writerow()).
 
-La función .get() envía un request GET a la págia web de Meraki para que le permita, a través de la API, obtener la información de Meraki (en este caso, una lista de organizaciones asociados a la API-Key) correspondiente a unos parámetros especificados en los Headers en forma de archivo JSON. Dicha función necesita como parámetro el URL de la página de Meraki, la cual permite acceder a la información deseada, y los Headers, los cuales se incluyen la información fundamental que se necesita para obtener un acceso a dicha información que almacena Meraki en sus servidores.
+La función .get() envía un request GET a la págia web de Meraki para que le permita, a través de la API, obtener la información de Meraki (en este caso, una lista de organizaciones asociados a la API-Key) correspondiente a unos parámetros especificados en los Headers en forma de archivo JSON. Dicha función necesita como parámetro el URL de la página de Meraki, la cual permite acceder a la información deseada, y los Headers, los cuales se incluyen la información fundamental que se necesita para obtener un acceso a dicha información que almacena Meraki en sus servidores. Luego, el método .raise_for_status() advierte en el caso de que ocurra un error al realizar el request, indicando su código.
 
 Con el método .json() se convierte el archivo JSON en una lista con elementos diccionario de Python y la función .pprint() permite mostrar en pantalla la información guardada en la lista, la cual es del conjunto de organizaciones asociados a la API-Key.
 
@@ -74,6 +75,7 @@ campos_inventario = ["Tipo de producto", "Modelo", "Nombre", "Direccion MAC", "D
 campos_deseados = ["productType", "model", "name", "mac", "wan1Ip", "lanIp", "serial", "status"]
 
 equipos_json = requests.get(url, headers=headers)
+equipos_json.raise_for_status()
 equipos = equipos_json.json()
 
 lista_equipos_WyA = list()
@@ -81,7 +83,7 @@ equipo = dict()
 lista_equipos_camp_des = list()
 ```
 
-Para hallar la información de los equipos de una organización específica de una lista de organizaciones, se debe hacer un segundo request GET a la página web de Meraki (mediante otro recurso) utilizando la ID de la organización hallada previamente para obtener la URL y, junto a la API-Key (almacenada en los Headers), obtener la información almacenada en los servidores de Meraki, a través de la API, sobre dichos equipos. Para realizar esto, se utilizó la función .get() para obtener acceso a la información de los equipos, en forma de archivo JSON. Luego, con el método .json(), se convierte la información obtenida en formato de archivo JSON en una lista con elementos diccionario de Python para su manipulación y, de esa forma, realizar el inventario.
+Para hallar la información de los equipos de una organización específica de una lista de organizaciones, se debe hacer un segundo request GET a la página web de Meraki (mediante otro recurso) utilizando la ID de la organización hallada previamente para obtener la URL y, junto a la API-Key (almacenada en los Headers), obtener la información almacenada en los servidores de Meraki, a través de la API, sobre dichos equipos. Para realizar esto, se utilizó la función .get() para obtener acceso a la información de los equipos, en forma de archivo JSON. Con el método .raise_for_status() advierte en el caso de que ocurra un error al realizar el request, indicando su código. Luego, con el método .json(), se convierte la información obtenida en formato de archivo JSON en una lista con elementos diccionario de Python para su manipulación y, de esa forma, realizar el inventario.
 
 Además, se especificó cuáles son los valores que se desean que se muestren en el inventario (en la variable *campos_inventario*) y como se obtienen se obtienen a través de la API (*campos_deseados*) y se crearon dos listas (*lista_equipos_WyA* y *lista_equipos_camp_des*), para la manipulación y seleccionamiento de datos; y un diccionario (*equipo*), para manipulación de datos.
 

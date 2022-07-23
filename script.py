@@ -6,6 +6,7 @@ url = "https://api.meraki.com/api/v1/organizations"									# Variable que indic
 headers = {"X-Cisco-Meraki-API-Key": "6bec40cf957de430a6f1f2baa056b99a4fac9ea0"}	# Variable que indica los Headers (API-Key) para acceder a la información que se accede a través la URL.
 
 org_list_json = requests.get(url, headers=headers)	# Se envía el GET request para obtener la lista de organizaciones accesibles con el API-Key en formato JSON.
+org_list_json.raise_for_status()					# Advierte en el caso de que ocurra un error al realizar el request, indicando su código.
 org_list = org_list_json.json()						# Convierte el objeto obtenido por el request en una lista con elementos diccionario.
 print("\nLista de organizaciones:\n")				# Muestra en pantalla que se iniciará a mostrar la lista de organizaciones.
 pprint.pprint(org_list)								# Imprime en pantalla de forma cómoda la lista de organizaciones como una lista con elementos diccionario.
@@ -29,6 +30,7 @@ campos_inventario = ["Tipo de producto", "Modelo", "Nombre", "Direccion MAC", "D
 campos_deseados = ["productType", "model", "name", "mac", "wan1Ip", "lanIp", "serial", "status"]			# Campos obtenidos a través de la API que contienen la información deseada.
 
 equipos_json = requests.get(url, headers=headers)	# Se envía el GET request para obtener una lista de todos los equipos de la organización con el API-Key en formato JSON.
+equipos_json.raise_for_status()						# Advierte en el caso de que ocurra un error al realizar el request, indicando su código.
 equipos = equipos_json.json()						# Convierte el objeto obtenido por el request en una lista con elementos diccionario.
 
 lista_equipos_WyA = list()							# Crear una lista para guardar equipos de tipo "wireless" y "appliance".
