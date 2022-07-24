@@ -1,7 +1,7 @@
 # README (LÉEME)
 
 <p>
-Universidad Simón Bolívar<br>
+Universidad Simón Bolívar.<br>
 Trimestre Abril-Julio 2022.<br>
 Asignatura: Redes Definidas por Software.<br>
 Profesora: Emma Di Battista.<br>
@@ -70,9 +70,9 @@ Mediante un ciclo *for*, se empieza a buscar la organización en la información
 #### Script *script.py* (Parte III):
 
 ```python
-url = "https://api.meraki.com/api/v1/organizations/{org_id}/devices".format(org_id = id_organizacion)
+url = "https://api.meraki.com/api/v1/organizations/{org_id}/devices/statuses".format(org_id = id_organizacion)
 campos_inventario = ["Tipo de producto", "Modelo", "Nombre", "Direccion MAC", "Direccion IP Publica", "Direccion IP de LAN", "Numero serial", "Status"]
-campos_deseados = ["productType", "model", "name", "mac", "wan1Ip", "lanIp", "serial", "status"]
+campos_deseados = ["productType", "model", "name", "mac", "publicIp", "lanIp", "serial", "status"]
 
 equipos_json = requests.get(url, headers=headers)
 equipos_json.raise_for_status()
@@ -122,7 +122,7 @@ for k in lista_equipos_camp_des:
 	equipo["Modelo"] = k.setdefault("model", '')
 	equipo["Nombre"] = k.setdefault("name", '')
 	equipo["Direccion MAC"] = k.setdefault("mac", '')
-	equipo["Direccion IP Publica"] = k.setdefault("wan1Ip", '')
+	equipo["Direccion IP Publica"] = k.setdefault("publicIp", '')
 	equipo["Direccion IP de LAN"] = k.setdefault("lanIp", '')
 	equipo["Numero serial"] = k.setdefault("serial", '')
 	equipo["Status"] = k.setdefault("status", '')
@@ -160,7 +160,7 @@ La mayoría de editores de texto (como Sublime Text 3, Notepad++, VS Code, entre
 
 ```csv
 Tipo de producto,Modelo,Nombre,Direccion MAC,Direccion IP Publica,Direccion IP de LAN,Numero serial,Status
-wireless,MR84,Alex's MR84 - 1,e0:55:3d:10:56:8a,,,Q2EK-2LYB-PCZP,
-wireless,MR84,Vegas Living Room MR84,e0:55:3d:10:5a:ca,,192.168.0.20,Q2EK-3UBE-RRUY,
-wireless,MR84,,e0:55:3d:10:5b:d8,,,Q2EK-ACGE-URXL,
+wireless,MR84,Alex's MR84 - 1,e0:55:3d:10:56:8a,75.187.61.126,,Q2EK-2LYB-PCZP,dormant
+wireless,MR84,Vegas Living Room MR84,e0:55:3d:10:5a:ca,71.222.80.198,192.168.0.20,Q2EK-3UBE-RRUY,dormant
+wireless,MR84,,e0:55:3d:10:5b:d8,,,Q2EK-ACGE-URXL,dormant
 ```

@@ -25,9 +25,9 @@ for organizacion in org_list:							# Búsqueda de la ID de la organización
 		print("\nNo existe la organizacion llamada", nombre_organizacion, end=".\n")
 		exit()
 
-url = "https://api.meraki.com/api/v1/organizations/{org_id}/devices".format(org_id = id_organizacion)		# Variable que indica la URL a la cual se realizará el request.
+url = "https://api.meraki.com/api/v1/organizations/{org_id}/devices/statuses".format(org_id = id_organizacion)		# Variable que indica la URL a la cual se realizará el request.
 campos_inventario = ["Tipo de producto", "Modelo", "Nombre", "Direccion MAC", "Direccion IP Publica", "Direccion IP de LAN", "Numero serial", "Status"]	# Campos a incluir en el inventario.
-campos_deseados = ["productType", "model", "name", "mac", "wan1Ip", "lanIp", "serial", "status"]			# Campos obtenidos a través de la API que contienen la información deseada.
+campos_deseados = ["productType", "model", "name", "mac", "publicIp", "lanIp", "serial", "status"]			# Campos obtenidos a través de la API que contienen la información deseada.
 
 equipos_json = requests.get(url, headers=headers)	# Se envía el GET request para obtener una lista de todos los equipos de la organización con el API-Key en formato JSON.
 equipos_json.raise_for_status()						# Advierte en el caso de que ocurra un error al realizar el request, indicando su código.
@@ -55,7 +55,7 @@ for k in lista_equipos_camp_des:		# Asignar los equipos con los campos deseados 
 	equipo["Modelo"] = k.setdefault("model", '')
 	equipo["Nombre"] = k.setdefault("name", '')
 	equipo["Direccion MAC"] = k.setdefault("mac", '')
-	equipo["Direccion IP Publica"] = k.setdefault("wan1Ip", '')
+	equipo["Direccion IP Publica"] = k.setdefault("publicIp", '')
 	equipo["Direccion IP de LAN"] = k.setdefault("lanIp", '')
 	equipo["Numero serial"] = k.setdefault("serial", '')
 	equipo["Status"] = k.setdefault("status", '')
