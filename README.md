@@ -9,18 +9,18 @@ Alumno: César A. Pineda Carrero.<br>
 Carnet: 15-11136.
 </p>
 
-# Práctica II de la asignatura Redes Definidas por Software (SDN).
+# Práctica II y III de la asignatura Redes Definidas por Software (SDN).
 
 # Cómo obtener las librerías de Python
 
-En este proyecto se utiliza algunas librerías estándares de Python (*pprint* y *csv*), las cuales vienen instaladas con él, y otra librería llamada *requests*, la cual se puede instalar utilizando el sistema de gestión de paquetes PIP (viene instalado con Python). Para eso, se debe abrir el CMD (en un sistema de Windows) o la terminal (en un sistema de Linux), ubicarse en la carpeta donde se guardó el archivo *requirements.txt* del proyecto (utilizando el comando *cd*) y correr el comando:
+En este proyecto se utiliza algunas librerías estándares de Python (*pprint*, *csv* y *time*), las cuales vienen instaladas con él, y otra librería llamada *requests*, la cual se puede instalar utilizando el sistema de gestión de paquetes PIP (viene instalado con Python). Para eso, se debe abrir el CMD (en un sistema de Windows) o la terminal (en un sistema de Linux), ubicarse en la carpeta donde se guardó el archivo *requirements.txt* del proyecto (utilizando el comando *cd*) y correr el comando:
 
 ```bash
 pip install -r requirements.txt
 ```
 # Obtener una lista de organizaciones a través de la API de la empresa Meraki
 
-Para obtener una lista de organanizaciones de Meraki asociadas a una API-Key se debe ejecutar el script de Python del proyecto llamado *script.py*. En este script se emplea la librería de *requests*, para poder acceder a la información que los servidores de Meraki a través de una API-Key; la librería *pprint*, para mostrar las organizaciones de una forma agradable para la vista humana; y la librería *csv* para crear un inventario en un archivo con extensión .csv.
+Para obtener una lista de organanizaciones de Meraki asociadas a una API-Key se debe ejecutar el script de Python del proyecto llamado *script.py*. En este script se emplea la librería de *requests*, para poder acceder a la información que los servidores de Meraki a través de una API-Key; la librería *pprint*, para mostrar las organizaciones de una forma agradable para la vista humana; la librería *csv* para crear un inventario en un archivo con extensión .csv; y la librería *time* para obtener información de tiempo en la que se ejecuta ciertas intrucciones para llevar un conteo del mismo.
 
 #### Script *script.py* (Parte I):
 
@@ -28,6 +28,7 @@ Para obtener una lista de organanizaciones de Meraki asociadas a una API-Key se 
 import requests
 import csv
 import pprint
+import time
 
 url = "https://api.meraki.com/api/v1/organizations"
 headers = {"X-Cisco-Meraki-API-Key": "6bec40cf957de430a6f1f2baa056b99a4fac9ea0"}
@@ -39,13 +40,13 @@ print("\nLista de organizaciones:\n")
 pprint.pprint(org_list)
 ```
 
-Con el keyword *import* se importan librerías instaladas para que se puedan utilizar sus funciones y métodos (como .get() y .json() de la librería *requests*, .pprint() de la librería *pprint* y .DictWriter(), .writeheader() y .writerow()).
+Con el keyword *import* se importan librerías instaladas para que se puedan utilizar sus funciones y métodos (como .get() y .json() de la librería *requests*, .pprint() de la librería *pprint*, .DictWriter(), .writeheader() y .writerow() de la librería *csv* y .time(), asctime() y .sleep() de la librería *time*).
 
 La función .get() envía un request GET a la págia web de Meraki para que le permita, a través de la API, obtener la información de Meraki (en este caso, una lista de organizaciones asociados a la API-Key) correspondiente a unos parámetros especificados en los Headers en forma de archivo JSON. Dicha función necesita como parámetro el URL de la página de Meraki, la cual permite acceder a la información deseada, y los Headers, los cuales se incluyen la información fundamental que se necesita para obtener un acceso a dicha información que almacena Meraki en sus servidores. Luego, el método .raise_for_status() advierte en el caso de que ocurra un error al realizar el request, indicando su código.
 
 Con el método .json() se convierte el archivo JSON en una lista con elementos diccionario de Python y la función .pprint() permite mostrar en pantalla la información guardada en la lista, la cual es del conjunto de organizaciones asociados a la API-Key.
 
-# Crear un inventario (en formato .csv) de equipos de una organización a través de la API de la empresa Meraki
+# Crear y actualizar un inventario (en formato .csv) de equipos de una organización a través de la API de la empresa Meraki
 
 Para poder realizar un inventario de equipos de tipo específico, se debe encontrar la ID de la organización asociada a la API-Key. En este caso, se desea realizar un inventario de la organización **DeLab**, la cual se debe especificar en el script.
 
@@ -74,14 +75,20 @@ url = "https://api.meraki.com/api/v1/organizations/{org_id}/devices/statuses".fo
 campos_inventario = ["Tipo de producto", "Modelo", "Nombre", "Direccion MAC", "Direccion IP Publica", "Direccion IP de LAN", "Numero serial", "Status"]
 campos_deseados = ["productType", "model", "name", "mac", "publicIp", "lanIp", "serial", "status"]
 
-equipos_json = requests.get(url, headers=headers)
-equipos_json.raise_for_status()
-equipos = equipos_json.json()
+while(True):
 
-lista_equipos_WyA = list()
-equipo = dict()
-lista_equipos_camp_des = list()
+	start_counter = time.time()
+
+	equipos_json = requests.get(url, headers=headers)
+	equipos_json.raise_for_status()
+	equipos = equipos_json.json()
+
+	lista_equipos_WyA = list()
+	equipo = dict()
+	lista_equipos_camp_des = list()
 ```
+
+Se desea que el inventario creado se actulice cada cinco minutos. Por este motivo, el proceso de obtención del inventario se coloca dentro de un bucle infinito con la instruccón *While*. Justamente antes de realizar un segundo request GET, se obtiene el tiempo en segundos desde el 1ero de enero de 1970, 00:00:00 (UTC), hasta que se ejecutó la instrucción que permite almacenar dicho tiempo (hasta que se ejecute la primera instrucción dentro del bucle) con la función .time().
 
 Para hallar la información de los equipos de una organización específica de una lista de organizaciones, se debe hacer un segundo request GET a la página web de Meraki (mediante otro recurso) utilizando la ID de la organización hallada previamente para obtener la URL y, junto a la API-Key (almacenada en los Headers), obtener la información almacenada en los servidores de Meraki, a través de la API, sobre dichos equipos. Para realizar esto, se utilizó la función .get() para obtener acceso a la información de los equipos, en forma de archivo JSON. Con el método .raise_for_status() advierte en el caso de que ocurra un error al realizar el request, indicando su código. Luego, con el método .json(), se convierte la información obtenida en formato de archivo JSON en una lista con elementos diccionario de Python para su manipulación y, de esa forma, realizar el inventario.
 
@@ -90,9 +97,9 @@ Además, se especificó cuáles son los valores que se desean que se muestren en
 #### Script *script.py* (Parte IV):
 
 ```python
-for i in equipos:
-	if ( i["productType"]=="wireless" or i["productType"]=="appliance" ):
-		lista_equipos_WyA.append(i)
+	for i in equipos:
+		if ( i["productType"]=="wireless" or i["productType"]=="appliance" ):
+			lista_equipos_WyA.append(i)
 
 ```
 
@@ -101,12 +108,12 @@ Se filtraron los equipos (obtenidos en la lista con diccionarios que contienen s
 #### Script *script.py* (Parte V):
 
 ```python
-for j in lista_equipos_WyA:
-	for key,value in j.items():
-		if key in campos_deseados:
-			equipo[key] = value
-	lista_equipos_camp_des.append(dict(equipo))
-	equipo.clear()
+	for j in lista_equipos_WyA:
+		for key,value in j.items():
+			if key in campos_deseados:
+				equipo[key] = value
+		lista_equipos_camp_des.append(dict(equipo))
+		equipo.clear()
 
 ```
 
@@ -115,19 +122,19 @@ Se descartó la información (campos) de los equipos que no son de interés. La 
 #### Script *script.py* (Parte VI):
 
 ```python
-lista_equipos_WyA.clear()
+	lista_equipos_WyA.clear()
 
-for k in lista_equipos_camp_des:
-	equipo["Tipo de producto"] = k.setdefault("productType", '')
-	equipo["Modelo"] = k.setdefault("model", '')
-	equipo["Nombre"] = k.setdefault("name", '')
-	equipo["Direccion MAC"] = k.setdefault("mac", '')
-	equipo["Direccion IP Publica"] = k.setdefault("publicIp", '')
-	equipo["Direccion IP de LAN"] = k.setdefault("lanIp", '')
-	equipo["Numero serial"] = k.setdefault("serial", '')
-	equipo["Status"] = k.setdefault("status", '')
+	for k in lista_equipos_camp_des:
+		equipo["Tipo de producto"] = k.setdefault("productType", '')
+		equipo["Modelo"] = k.setdefault("model", '')
+		equipo["Nombre"] = k.setdefault("name", '')
+		equipo["Direccion MAC"] = k.setdefault("mac", '')
+		equipo["Direccion IP Publica"] = k.setdefault("publicIp", '')
+		equipo["Direccion IP de LAN"] = k.setdefault("lanIp", '')
+		equipo["Numero serial"] = k.setdefault("serial", '')
+		equipo["Status"] = k.setdefault("status", '')
 
-	lista_equipos_WyA.append(dict(equipo))
+		lista_equipos_WyA.append(dict(equipo))
 
 ```
 
@@ -136,21 +143,24 @@ Se vacía la lista *lista_equipos_WyA* para utilizarla nuevamente con el objetiv
 #### Script *script.py* (Parte VII):
 
 ```python
-with open('equipos_appliance_y_wireless.csv', 'w', newline='') as archivo_csv:
-	writer = csv.DictWriter(archivo_csv, fieldnames=campos_inventario)
-	writer.writeheader()
+	with open('equipos_appliance_y_wireless.csv', 'w', newline='') as archivo_csv:
+		writer = csv.DictWriter(archivo_csv, fieldnames=campos_inventario)
+		writer.writeheader()
 
-	for linea in lista_equipos_WyA:
-		writer.writerow(linea)
+		for linea in lista_equipos_WyA:
+			writer.writerow(linea)
 
-print("\nFue creado un inventario con lo equipos \"wireless\" y \"appliance\".")
+	print("\nFue actualizado el inventario con los equipos \"wireless\" y \"appliance\" el", time.asctime(), end=".\n")
+
+	stop_counter = time.time()
+	time.sleep(5*60 - (stop_counter - start_counter))
 ```
 
 Utilizando un manejador de archivos, se crea un archivo en modo de escritura (será referido como *archivo_csv*) para crear el inventario llamado *equipos_appliance_y_wireless.csv*.
 
 Para escribir en dicho archivo en formato .csv, se necesita crear un escritor (llamado *writer*) mediante la función .DictWriter() con el nombre de referencia del archivo y los campos especificados que poseerá el inventario (*campos_inventarios*) como parámetros. Con el método .writeheader() se coloca en la primera línea del inventario (*equipos_appliance_y_wireless.csv*) dichos campos especificados. Luego, con el método .writerow() se escribe los campos de un equipo, el cual se encuentra como elemento diccionario en la lista *lista_equipos_WyA*, línea por línea, en el inventario.
 
-Finalmente, se anuncia en pantalla que el inventario con los equipos de tipo "wireless" y "appliance" ha sido creado.
+Se anuncia en pantalla que el inventario con los equipos de tipo "wireless" y "appliance" ha sido creado/actualizado junto a la fecha en la que se creó/actualizó, utilizando la función .asctime(). Luego, se obtiene el tiempo en segundos desde el 1ero de enero de 1970, 00:00:00 (UTC), hasta que se ejecutó la instrucción que permite almacenar dicho tiempo (hasta que el inventario se haya creado/actualizado) con la función .time(). Finalmente, el programa se mantiene inactivo por cinco minutos menos el tiempo que tardó en crearse/actualizarse el inventario (desde el inicio del bucle) con la función .sleep(). De esta forma, el bucle se realiza cada cinco minutos, actualizando el inventario.
 
 # Visualizar el inventario obtenido (archivo *equipos_appliance_y_wireless.csv*)
 
