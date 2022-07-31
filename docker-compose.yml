@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+
+  inventario_DeLab:
+    image: practica3_sdn
+    volumes:
+      - inv_DeLab:/usr/src/app
+
+volumes:
+  
+  inv_DeLab:
+    external: true
